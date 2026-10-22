@@ -17,9 +17,11 @@ Each component has its own live demo, documentation, and example usage.
 ## Features
 
 - Reusable Three.js animations
+- Four animated backgrounds: Aurora Flow, Starfield, Neon Grid and Topography
+- Every component is a single, self-contained file you can copy into your own project
 - Built with React Three Fiber
 - Interactive component previews
-- Individual documentation pages
+- Individual documentation pages with an install guide, copyable source code, usage example and props table
 - Central component registry
 - Support for custom shaders and effects
 - Designed to make adding new animations simple
@@ -33,7 +35,6 @@ Each component has its own live demo, documentation, and example usage.
 - Vite
 - Three.js
 - React Three Fiber
-- Drei
 - React Router
 
 ---
@@ -43,19 +44,25 @@ Each component has its own live demo, documentation, and example usage.
 ```text
 src/
 ├── components/
-│   └── Floating/
-│       ├── Floating.tsx
-│       └── index.ts
+│   ├── backgrounds/
+│   │   ├── Aurora/
+│   │   ├── Starfield/
+│   │   ├── NeonGrid/
+│   │   └── Topography/
 │
 ├── demos/
-│   └── FloatingDemo.tsx
+│   └── BackgroundDemos.tsx
 │
 ├── pages/
 │   ├── HomePage.tsx
 │   ├── ComponentsPage.tsx
-│   └── ComponentPage.tsx
+│   ├── ComponentPage.tsx
+│   └── NotFoundPage.tsx
 │
 ├── ui/
+│   ├── Layout.tsx
+│   ├── Navbar.tsx
+│   └── CodeBlock.tsx
 │
 ├── data/
 │   └── components.ts
@@ -244,7 +251,6 @@ src/demos/RotationDemo.tsx
 
 ```tsx
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
 
 import { Rotation } from "../components/Rotation";
 
@@ -266,7 +272,6 @@ function RotationDemo() {
           </mesh>
         </Rotation>
 
-        <OrbitControls />
       </Canvas>
     </div>
   );
@@ -287,10 +292,11 @@ The component registry is located at:
 src/data/components.ts
 ```
 
-Import the new demo:
+Import the new demo and the component source (`?raw` gives the file contents as a string, which the page shows and lets visitors copy):
 
 ```ts
 import RotationDemo from "../demos/RotationDemo";
+import rotationSource from "../components/Rotation/Rotation.tsx?raw";
 ```
 
 Then add a registry entry:
@@ -301,30 +307,18 @@ Then add a registry entry:
   name: "Rotation",
   description: "Continuously rotates any 3D object.",
   category: "Animation",
+  thumbnail: "linear-gradient(135deg, #240046, #7c3aed)",
   demo: RotationDemo,
+  source: rotationSource,
+  fileName: "Rotation.tsx",
+  usage: `<Canvas>…<Rotation speed={1}>…</Rotation></Canvas>`,
+  props: [
+    { name: "speed", type: "number", default: "1", description: "Rotation speed." },
+  ],
 }
 ```
 
-The registry may then look like:
-
-```ts
-export const components: ComponentInfo[] = [
-  {
-    slug: "floating",
-    name: "Floating",
-    description: "Adds a smooth floating animation to any 3D object.",
-    category: "Animation",
-    demo: FloatingDemo,
-  },
-  {
-    slug: "rotation",
-    name: "Rotation",
-    description: "Continuously rotates any 3D object.",
-    category: "Animation",
-    demo: RotationDemo,
-  },
-];
-```
+> The component file must be **self-contained** (inline any shaders, no CSS file, no imports from elsewhere in this repo) because visitors copy it as a single file.
 
 ---
 
@@ -359,6 +353,12 @@ export interface ComponentInfo {
   description: string;
   category: ComponentCategory;
   demo: ComponentType;
+  thumbnail: string; // CSS background for the card
+  source: string; // component source (imported with ?raw)
+  fileName: string; // file name shown in the guide
+  usage: string; // usage example shown in the guide
+  props: ComponentProp[]; // rows of the props table
+  note?: string; // optional placement note
 }
 ```
 
